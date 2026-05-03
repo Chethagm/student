@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unibot – Monochrome Premium Login</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top left, #1e293b, #0f172a, #020617);
+        color: #f8fafc;
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        overflow: hidden;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 460px;
+        animation: fadeIn 1.2s ease;
+    }
+
+    .premium-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(40px);
+        border-radius: 40px;
+        padding: 4rem 3.5rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin: 0;
+        color: #fff;
+        letter-spacing: -1px;
+    }
+
+    .brand-subtitle {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+        font-weight: 400;
+        letter-spacing: 1px;
+    }
+
+    .feedback-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        pointer-events: none;
+        transition: 0.4s;
+        z-index: 10;
+    }
+
+    .feedback-overlay.success {
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+        border: 2px solid #10b981;
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+    }
+
+    .feedback-overlay.failure {
+        background: radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%);
+        border: 2px solid #ef4444;
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+    }
+
+    .status-msg {
+        position: absolute;
+        bottom: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0;
+        transition: 0.3s;
+        white-space: nowrap;
+    }
+
+    .status-msg.active {
+        bottom: -25px;
+        opacity: 1;
+    }
+
+    .minimal-face-box {
+        aspect-ratio: 4/3;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 20px;
+        margin: 2.5rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .minimal-face-box video { width: 100%; height: 100%; object-fit: cover; }
+    
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 14px;
+        border: none;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="premium-card">
+        <img src="unibot_logo.png" style="width: 150px; height: auto; margin-bottom: 1.5rem; filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.4));">
+        <h1 class="brand-title">UniBot</h1>
+        <p class="brand-subtitle">Smart Campus Biometric Gate</p>
+
+        <div class="minimal-face-box" id="scannerContainer">
+            <div id="feedbackOverlay" class="feedback-overlay"></div>
+            <div id="statusMsg" class="status-msg">READY FOR SCAN</div>
+            
+            <i class="fas fa-face-viewfinder" style="font-size: 3.5rem; color: rgba(255,255,255,0.1);" id="faceIcon"></i>
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; justify-content:center; padding: 1.2rem; border-radius: 20px; background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);" onclick="startLogin()">
+            <i class="fas fa-expand"></i> INITIALIZE FACE ID
+        </button>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button class="btn btn-secondary" style="flex:1; background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.1);" onclick="window.location.href='register.html'">
+                ONBOARDING
+            </button>
+            <button class="btn btn-secondary" style="flex:1; background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.1);" onclick="window.location.href='index.html'">
+                BYPASS (GUEST)
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let userType = 'student';
+    let loginMode = 'face';
+    let currentStream = null;
+
+    function setUser(type) {
+        userType = type;
+        document.getElementById('tabStudent').classList.toggle('active', type === 'student');
+        document.getElementById('tabAdmin').classList.toggle('active', type === 'admin');
+    }
+
+    function setMode(mode) {
+        loginMode = mode;
+        document.getElementById('optFace').classList.toggle('active', mode === 'face');
+        document.getElementById('optOTP').classList.toggle('active', mode === 'otp');
+        document.getElementById('faceSection').style.display = mode === 'face' ? 'block' : 'none';
+        document.getElementById('otpSection').style.display = mode === 'otp' ? 'block' : 'none';
+        if (currentStream) stopCamera();
+    }
+
+    function triggerFeedback(success) {
+        const overlay = document.getElementById('feedbackOverlay');
+        const msg = document.getElementById('statusMsg');
+        overlay.className = 'feedback-overlay ' + (success ? 'success' : 'failure');
+        msg.textContent = success ? 'VERIFICATION SUCCESSFUL' : 'FACE NOT RECOGNIZED';
+        msg.style.color = success ? '#10b981' : '#ef4444';
+        msg.classList.add('active');
+        
+        if (success) {
+            setTimeout(() => {
+                localStorage.setItem('unibot_user', JSON.stringify({
+                    id: 1,
+                    name: 'John Doe',
+                    register_number: 'REG101',
+                    type: userType
+                }));
+                window.location.href = userType === 'admin' ? 'admin.html' : 'index.html';
+            }, 1500);
+        } else {
+            setTimeout(() => {
+                overlay.className = 'feedback-overlay';
+                msg.textContent = 'READY FOR SCAN';
+                msg.style.color = '#94a3b8';
+            }, 3000);
+        }
+    }
+
+    async function startLogin() {
+        const video = document.getElementById('video');
+        const camBox = document.getElementById('scannerContainer');
+        const msg = document.getElementById('statusMsg');
+        
+        msg.textContent = 'INITIALIZING CAMERA...';
+        msg.classList.add('active');
+
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            video.srcObject = currentStream;
+            video.style.display = 'block';
+            camBox.classList.add('active');
+            
+            msg.textContent = 'SCANNING...';
+
+            // Simulate Neural Verification
+            setTimeout(() => {
+                triggerFeedback(true); // Forced success for demo reliability
+            }, 3000);
+
+        } catch (err) {
+            alert("Camera access required for Biometric Face ID.");
+            msg.textContent = 'ACCESS DENIED';
+        }
+    }
+
+    function stopCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+        }
+    }
+
+    function generateOTP(btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Sent';
+            btn.style.background = '#10b981';
+            alert("A secure OTP has been sent to your registered email.");
+        }, 1500);
+    }
+
+    function signInOTP() {
+        const rn = document.getElementById('rn').value;
+        if(!rn) return alert("Please enter your Register Number.");
+        localStorage.setItem('unibot_user', JSON.stringify({ id: 1, name: 'John Doe', register_number: rn, type: userType }));
+        window.location.href = userType === 'admin' ? 'admin.html' : 'index.html';
+    }
+</script>
+</body>
+</html>

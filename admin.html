@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Command Center | UniBot</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { display: flex; height: 100vh; overflow: hidden; }
+    
+    /* Admin Sidebar */
+    .admin-sidebar {
+        width: 280px; background: var(--bg-dark); border-right: 1px solid var(--glass-border);
+        display: flex; flex-direction: column; padding: 2rem;
+    }
+    .nav-link {
+        padding: 1rem; border-radius: 15px; color: var(--text-secondary); text-decoration: none;
+        display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; transition: 0.3s;
+    }
+    .nav-link:hover, .nav-link.active { background: rgba(251, 191, 36, 0.1); color: var(--primary); }
+    .nav-link i { width: 20px; }
+
+    /* Main Content */
+    .admin-main { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, rgba(251, 191, 36, 0.03), transparent); }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+    .stat-card { 
+        background: var(--glass); padding: 2rem; border-radius: 30px; 
+        border: 1px solid var(--glass-border); position: relative; overflow: hidden;
+    }
+    .stat-card i { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05; color: var(--primary); }
+    .stat-val { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .stat-lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); }
+
+    .widget-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+    .section-card { background: var(--glass); border-radius: 30px; padding: 2rem; border: 1px solid var(--glass-border); }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 1rem; border-bottom: 1px solid var(--glass-border); color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; }
+    td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<aside class="admin-sidebar">
+    <div style="font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 3rem;">UniBot<span style="color:white">.</span></div>
+    <nav>
+        <a href="#" class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="seating.html" class="nav-link"><i class="fas fa-chair"></i> Seating Map</a>
+        <a href="navigation.html" class="nav-link"><i class="fas fa-map-marked-alt"></i> Navigator</a>
+        <a href="#" class="nav-link"><i class="fas fa-user-graduate"></i> Students</a>
+        <a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+    </nav>
+    <div style="margin-top: auto;">
+        <button class="btn btn-secondary btn-full" onclick="location.href='login.html'"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</aside>
+
+<main class="admin-main">
+        <div style="display:flex; gap:1.5rem; align-items:center">
+            <button class="btn btn-primary" onclick="startAttendance()" style="background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); padding: 1rem 2rem; border-radius: 15px;">
+                <i class="fas fa-video"></i> START NEURAL ATTENDANCE
+            </button>
+            <div class="glass" style="padding:1rem 2rem; border-radius:20px; display:flex; align-items:center; gap:1rem">
+            <div style="text-align:right">
+                <div style="font-weight:700">Admin One</div>
+                <div style="font-size:0.7rem; color:var(--primary)">CHIEF ADMINISTRATOR</div>
+            </div>
+            <div style="width:45px; height:45px; background:var(--primary); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800">A</div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-val" id="total_students">352</div>
+            <div class="stat-lbl">Total Students</div>
+            <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="present_today">284</div>
+            <div class="stat-lbl">Present Today</div>
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="active_exams">4</div>
+            <div class="stat-lbl">Active Exams</div>
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="security_status" style="color:var(--accent-teal)">Normal</div>
+            <div class="stat-lbl">Security Status</div>
+            <i class="fas fa-shield-alt"></i>
+        </div>
+    </div>
+
+    <div class="widget-grid">
+        <div class="section-card">
+            <div style="font-size:1.2rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem">
+                <i class="fas fa-users" style="color:var(--primary)"></i> Recent Biometric Activity
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Student</th><th>Activity</th><th>Time</th><th>Status</th></tr>
+                </thead>
+                <tbody id="biometricList">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-card">
+            <div style="font-size:1.2rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem">
+                <i class="fas fa-bell" style="color:#ff5252"></i> Critical Alerts
+            </div>
+            <div id="alertFeed" style="display:flex; flex-direction:column; gap:1rem">
+                <!-- Dynamic -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+async function startAttendance() {
+    try {
+        const res = await fetch('http://localhost:5000/api/start_attendance', { method: 'POST' });
+        const data = await res.json();
+        alert(data.message);
+    } catch(e) {
+        alert("Failed to connect to Biometric API. Ensure Flask is running on port 5000.");
+    }
+}
+
+async function load() {
+    try {
+        const r = await fetch('api/admin_crud.php?action=fetch_logs');
+        const logs = await r.json();
+        
+        const bio = document.getElementById('biometricList');
+        const alerts = document.getElementById('alertFeed');
+        
+        if(!logs || logs.length === 0) {
+            alerts.innerHTML = '<p style="color:var(--text-secondary)">No alerts detected.</p>';
+            return;
+        }
+
+        bio.innerHTML = logs.filter(l => l.type === 'Biometric').map(l => `
+            <tr>
+                <td>${l.message.split(': ')[1]}</td>
+                <td>Attendance Log</td>
+                <td>${new Date(l.created_at).toLocaleTimeString()}</td>
+                <td><span class="badge badge-present">Verified</span></td>
+            </tr>
+        `).join('') || '<tr><td colspan="4" style="text-align:center">No biometric data</td></tr>';
+
+        alerts.innerHTML = logs.filter(l => l.severity === 'danger').map(l => `
+            <div style="padding:1rem; background:rgba(255, 82, 82, 0.05); border:1px solid rgba(255, 82, 82, 0.2); border-radius:15px">
+                <div style="font-weight:700; color:#ff5252; font-size:0.8rem; margin-bottom:0.25rem">${l.type.toUpperCase()} ALERT</div>
+                <div style="font-size:0.75rem">${l.message}</div>
+                <div style="font-size:0.6rem; margin-top:0.5rem; opacity:0.5">${new Date(l.created_at).toLocaleString()}</div>
+            </div>
+        `).join('') || '<p style="color:var(--text-secondary)">System secure.</p>';
+
+    } catch(e) { console.error(e); }
+}
+load();
+setInterval(load, 5000);
+</script>
+</body>
+</html>

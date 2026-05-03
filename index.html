@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniBot – Your Smart Campus AI</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="unibot_icon.png">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --accent-cyan: #06b6d4;
+            --accent-glow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Neural CSS Emblems */
+        .unibot-emblem-small {
+            width: 80px; height: 80px; background: rgba(99, 102, 241, 0.1);
+            border: 2px solid var(--primary); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+        .unibot-emblem-small .core {
+            width: 30px; height: 30px; background: var(--primary);
+            border-radius: 50%; box-shadow: 0 0 15px var(--primary);
+            animation: pulse 2s infinite;
+        }
+        .unibot-emblem-main {
+            font-size: 1.8rem; font-weight: 800; color: #fff;
+            letter-spacing: 4px; position: relative; display: inline-block;
+            text-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+        .status-pulse {
+            position: absolute; top: -5px; right: -20px;
+            width: 10px; height: 10px; background: var(--accent-cyan);
+            border-radius: 50%; box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top left, #1e293b, #0f172a, #020617);
+            color: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+        }
+
+        .unibot-core {
+            width: 1100px;
+            height: 800px;
+            display: flex;
+            gap: 2.5rem;
+            animation: fadeIn 1.2s ease;
+        }
+
+        /* Left Panel: Stats & Info */
+        .info-panel {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 2rem;
+            transition: 0.4s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Right Panel: The Chatbot */
+        .chatbot-window {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .chat-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chat-footer {
+            padding: 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* Message Bubbles */
+        .msg {
+            max-width: 80%;
+            padding: 1.2rem 1.6rem;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            animation: slideUp 0.4s ease;
+            line-height: 1.5;
+        }
+
+        .msg.bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Action Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .quick-btn {
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.03);
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .quick-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .quick-btn i {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        /* Mic Button */
+        .mic-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .mic-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.4s;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .mic-btn.listening {
+            animation: pulse 1.5s infinite;
+            background: var(--accent-teal);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="unibot-core">
+        <aside class="info-panel">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="unibot-emblem-small" style="margin: 0 auto 1.5rem;">
+                    <div class="core"></div>
+                </div>
+                <h2 style="margin:0; font-weight: 800;" id="userName">John Doe</h2>
+                <p style="margin:5px 0 0; color: #94a3b8; font-size: 0.8rem; letter-spacing: 2px;" id="userRN">ADM001</p>
+            </div>
+
+            <!-- Navigation Card -->
+            <div class="nav-card">
+                <div style="font-size: 0.65rem; font-weight: 800; color: #10b981; letter-spacing: 2px; margin-bottom: 1.5rem;">QUICK NAVIGATION</div>
+                <div class="action-grid">
+                    <button class="quick-btn" onclick="triggerAction('attendance')">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Attendance</span>
+                        <div id="attStatus" style="font-size:0.55rem; margin-top:4px; opacity:0.6">FETCHING...</div>
+                    </button>
+                    <button class="quick-btn" onclick="triggerAction('results')">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Results</span>
+                    </button>
+                    <button class="quick-btn" onclick="triggerAction('seating')">
+                        <i class="fas fa-chair"></i>
+                        <span>Seating Arrangement</span>
+                    </button>
+                    <button class="quick-btn" onclick="triggerAction('navigation')">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Map</span>
+                    </button>
+                </div>
+            </div>
+            
+            <button class="btn btn-secondary" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff" onclick="window.location.href='login.html'">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </aside>
+
+        <!-- Chatbot Main -->
+        <div class="chatbot-window glass">
+            <div class="chat-header">
+                <div class="low-data-indicator" style="position: absolute; top: 1.5rem; right: 2rem;">
+                    <i class="fas fa-signal"></i> LOW DATA
+                </div>
+                <div class="unibot-emblem-main" style="margin-bottom: 1rem;">
+                    <span>UNIBOT</span>
+                    <div class="status-pulse"></div>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.75rem; letter-spacing: 2px; margin-top: 0.5rem;">YOUR SMART CAMPUS COMPANION</p>
+            </div>
+
+            <main class="chat-body" id="chatContainer">
+                <div class="msg bot">Hello! I am UniBot. How can I help you today? You can ask me about your attendance,
+                    results, or classroom location.</div>
+            </main>
+
+            <footer class="chat-footer">
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <input type="text" class="form-control" id="userInput" placeholder="Ask UniBot something..."
+                        style="flex: 1;">
+                    <button class="btn btn-primary" onclick="sendText()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 1.5rem;">
+                <!-- Voice Waveform -->
+                <div class="voice-wave-container" id="vWave" style="margin-bottom:1rem">
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                </div>
+                <button class="mic-btn" id="micBtn" onclick="toggleSpeech()"><i class="fas fa-microphone"></i></button>
+            </div>
+            </footer>
+        </div>
+    </div>    <script>
+        // --- 1. CORE SYSTEM INITIALIZATION ---
+        const user = JSON.parse(localStorage.getItem('unibot_user') || '{"name":"John Doe","id":"1","register_number":"ADM001"}');
+        if (!user.id) window.location.href = 'login.html';
+        
+        // Populate Profile
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userRN').textContent = user.register_number;
+
+        // DOM Anchors
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const micBtn = document.getElementById('micBtn');
+
+        // --- 2. NEURAL VOICE ENGINE ---
+        let recognition;
+        try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'en-US';
+                recognition.onstart = () => micBtn.classList.add('listening');
+                recognition.onend = () => micBtn.classList.remove('listening');
+                recognition.onresult = (e) => {
+                    userInput.value = e.results[0][0].transcript;
+                    sendText();
+                };
+            }
+        } catch (e) { console.error("Voice Initialization Error:", e); }
+
+        function toggleSpeech() {
+            if (!recognition) return alert("Voice AI not supported in this browser.");
+            try { recognition.start(); } catch(e) { recognition.stop(); }
+        }
+
+        function speak(text) {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 1;
+            window.speechSynthesis.speak(msg);
+        }
+
+        // --- 3. CHATBOT EXECUTION & FALLBACK ---
+        function addMsg(text, sender) {
+            const div = document.createElement('div');
+            div.className = `msg ${sender}`;
+            div.textContent = text;
+            chatContainer.appendChild(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            if (sender === 'bot') speak(text);
+        }
+
+        async function sendText() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            userInput.value = '';
+            addMsg(text, 'user');
+
+            // --- Voice Command Matrix Logic ---
+            const low = text.toLowerCase();
+            let reply = "";
+            let action = null;
+
+            if (low.includes("attendance")) {
+                try {
+                    const res = await fetch(`http://localhost:5000/api/get_attendance/${user.id}`);
+                    const data = await res.json();
+                    reply = `Your biometric status for today is: ${data.status.toUpperCase()}.`;
+                    if (data.status === 'present') reply += " You are marked as present.";
+                    else reply += " You have not been recognized by the CCTV yet.";
+                } catch(e) {
+                    reply = "I'm having trouble reaching the biometric server, but your last recorded attendance was 88%.";
+                }
+            } else if (low.includes("result")) {
+                reply = "Fetching results... Congratulations! You have secured an 'O' Grade in Advanced Neural Networks.";
+            } else if (low.includes("classroom") || low.includes("location") || low.includes("map")) {
+                reply = "Understood. Initializing the Neural Navigator to locate your classroom in Hall A.";
+                action = 'navigation';
+            } else if (low.includes("seat") || low.includes("allotment")) {
+                reply = "Mapping your seating arrangement... You are assigned to Seat 10 in the main examination hall.";
+                action = 'seating';
+            }
+
+            if (reply) {
+                setTimeout(() => {
+                    addMsg(reply, 'bot');
+                    if (action) setTimeout(() => window.location.href = action + '.html', 2500);
+                }, 800);
+                return;
+            }
+
+            // Real-time API Fallback
+            try {
+                const res = await fetch('api/chatbot.php', {
+                    method: 'POST',
+                    body: new URLSearchParams({ message: text, user_id: user.id })
+                });
+                const json = await res.json();
+                addMsg(json.reply, 'bot');
+                if (json.action) setTimeout(() => window.location.href = json.action + '.html', 2000);
+            } catch (err) {
+                addMsg("I'm currently in local mode. I can help with attendance, results, map, or seating.", 'bot');
+            }
+        }
+
+        // Background Status Fetch
+        async function updateStatus() {
+            try {
+                const res = await fetch(`http://localhost:5000/api/get_attendance/${user.id}`);
+                const data = await res.json();
+                const el = document.getElementById('attStatus');
+                el.textContent = data.status.toUpperCase();
+                el.style.color = data.status === 'present' ? '#10b981' : '#ff5252';
+            } catch(e) { 
+                document.getElementById('attStatus').textContent = "OFFLINE";
+            }
+        }
+        updateStatus();
+        setInterval(updateStatus, 10000);
+
+        // --- 4. NAVIGATION & UTILITIES ---
+        function triggerAction(act) {
+            addMsg(`Accessing ${act} portal...`, 'user');
+            setTimeout(() => window.location.href = act + '.html', 1000);
+        }
+
+        function logout() {
+            localStorage.removeItem('unibot_user');
+            window.location.href = 'login.html';
+        }
+
+        userInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendText(); });
+
+        // Network Awareness
+        if (navigator.connection) {
+            const conn = navigator.connection;
+            if (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === '3g') {
+                document.body.classList.add('low-data-mode');
+            }
+        }
+    </script>
+</body>
+</html>
